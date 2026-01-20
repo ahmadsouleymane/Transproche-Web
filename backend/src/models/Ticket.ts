@@ -81,10 +81,9 @@ ticketSchema.pre('save', function (next) {
   next();
 });
 
-// Index for faster queries
+// Index for faster queries (reservationNumber already indexed via unique: true)
 ticketSchema.index({ user: 1 });
 ticketSchema.index({ company: 1 });
-ticketSchema.index({ reservationNumber: 1 });
 ticketSchema.index({ status: 1 });
 ticketSchema.index({ travelDate: 1 });
 

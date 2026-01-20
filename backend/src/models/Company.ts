@@ -35,6 +35,11 @@ const companySchema = new Schema<ICompany>(
       required: [true, 'L\'adresse est requise'],
       trim: true,
     },
+    website: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     commission: {
       type: Number,
       default: 10,
@@ -52,8 +57,7 @@ const companySchema = new Schema<ICompany>(
   }
 );
 
-// Index for faster queries
-companySchema.index({ name: 1 });
+// Index for faster queries (name already indexed via unique: true)
 companySchema.index({ status: 1 });
 
 export const Company = mongoose.model<ICompany>('Company', companySchema);

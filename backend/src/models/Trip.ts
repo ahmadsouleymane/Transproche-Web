@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
 import { ITrip } from '../types';
-import { NIGER_CITIES } from '../config/cities';
 
 const tripSchema = new Schema<ITrip>(
   {
@@ -12,18 +11,12 @@ const tripSchema = new Schema<ITrip>(
     departure: {
       type: String,
       required: [true, 'La ville de départ est requise'],
-      enum: {
-        values: NIGER_CITIES,
-        message: 'Ville de départ invalide',
-      },
+      trim: true,
     },
     arrival: {
       type: String,
       required: [true, 'La ville d\'arrivée est requise'],
-      enum: {
-        values: NIGER_CITIES,
-        message: 'Ville d\'arrivée invalide',
-      },
+      trim: true,
     },
     departureTime: {
       type: String,

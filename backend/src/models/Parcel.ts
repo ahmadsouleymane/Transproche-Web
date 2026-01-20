@@ -1,6 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
 import { IParcel } from '../types';
-import { NIGER_CITIES } from '../config/cities';
 import { generateTrackingNumber } from '../utils/reservationNumber.utils';
 
 const personInfoSchema = new Schema(
@@ -75,18 +74,12 @@ const parcelSchema = new Schema<IParcel>(
     departure: {
       type: String,
       required: [true, 'La ville de départ est requise'],
-      enum: {
-        values: NIGER_CITIES,
-        message: 'Ville de départ invalide',
-      },
+      trim: true,
     },
     arrival: {
       type: String,
       required: [true, 'La ville d\'arrivée est requise'],
-      enum: {
-        values: NIGER_CITIES,
-        message: 'Ville d\'arrivée invalide',
-      },
+      trim: true,
     },
   },
   {
@@ -102,10 +95,9 @@ parcelSchema.pre('save', function (next) {
   next();
 });
 
-// Index for faster queries
+// Index for faster queries (trackingNumber already indexed via unique: true)
 parcelSchema.index({ user: 1 });
 parcelSchema.index({ company: 1 });
-parcelSchema.index({ trackingNumber: 1 });
 parcelSchema.index({ status: 1 });
 
 export const Parcel = mongoose.model<IParcel>('Parcel', parcelSchema);

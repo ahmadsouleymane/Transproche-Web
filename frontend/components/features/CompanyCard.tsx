@@ -1,28 +1,38 @@
 import { Company } from '@/types';
 import { Card, CardContent } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
-import { Phone, Mail, MapPin } from 'lucide-react';
-import Image from 'next/image';
+import { Phone, Mail, MapPin, Globe } from 'lucide-react';
 
 interface CompanyCardProps {
   company: Company;
 }
 
 const CompanyCard = ({ company }: CompanyCardProps) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000';
+
+  // Handle both external URLs and relative paths
+  const getLogoUrl = (logo: string | undefined) => {
+    if (!logo) return null;
+    if (logo.startsWith('http://') || logo.startsWith('https://')) {
+      return logo;
+    }
+    return `${apiUrl}${logo}`;
+  };
+
+  const logoUrl = getLogoUrl(company.logo);
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
           <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-            {company.logo ? (
-              <Image
-                src={`${apiUrl}${company.logo}`}
+            {logoUrl ? (
+              <img
+                src={logoUrl}
                 alt={company.name}
                 width={64}
                 height={64}
-                className="object-cover"
+                className="object-cover w-full h-full"
               />
             ) : (
               <span className="text-2xl font-bold text-gray-400">
@@ -57,6 +67,19 @@ const CompanyCard = ({ company }: CompanyCardProps) => {
                 <MapPin className="h-4 w-4 mr-2" />
                 <span>{company.address}</span>
               </div>
+              {company.website && (
+                <div className="flex items-center text-sm text-primary-600">
+                  <Globe className="h-4 w-4 mr-2" />
+                  <a
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {company.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>

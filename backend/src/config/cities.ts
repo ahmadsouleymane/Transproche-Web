@@ -1,4 +1,6 @@
+// Villes du Niger et destinations internationales
 export const NIGER_CITIES = [
+  // Principales villes du Niger
   'Niamey',
   'Zinder',
   'Maradi',
@@ -8,11 +10,134 @@ export const NIGER_CITIES = [
   'Diffa',
   'Tillabéri',
   'Arlit',
-  'Birni N\'Konni',
+  "Birni N'Konni",
+  // Autres villes du Niger
+  'Abalak',
+  'Aderbissanat',
+  'Aguié',
+  'Ayerou',
+  'Badaguichiri',
+  'Bakin Birji',
+  'Doutchi',
+  'Galmi',
+  'Gaya',
+  'Gazaoua',
+  'Gouré',
+  'Guidan Roumdji',
+  'Guidiguir',
+  'Illela',
+  'Konni',
+  'Madaoua',
+  'Maïné Soroa',
+  'Malbaza',
+  'Mirriah',
+  'Ouallam',
+  'Tanout',
+  'Tchiro',
+  'Tera',
+  'Tessaoua',
+  'Tchadoua',
+  'Tsernaoua',
+  // Destinations internationales
+  'Abidjan',
+  'Accra',
+  'Bamako',
+  'Bobo-Dioulasso',
+  'Cotonou',
+  'Dakar',
+  'Gao',
+  'Lomé',
+  'Ouagadougou',
+  'Parakou',
 ] as const;
 
-export type NigerCity = typeof NIGER_CITIES[number];
+export type NigerCity = (typeof NIGER_CITIES)[number];
 
-export const isValidCity = (city: string): city is NigerCity => {
-  return NIGER_CITIES.includes(city as NigerCity);
+export const isValidCity = (city: string): boolean => {
+  return NIGER_CITIES.some(c => c.toLowerCase() === city.toLowerCase());
 };
+
+// Compagnies de transport avec informations réelles
+export const TRANSPORT_COMPANIES = [
+  {
+    name: 'Nizar Transport Voyageur',
+    phone: '+227 77 04 56 00',
+    email: 'info@nizartv.com',
+    address: 'Boulevard Mali Bero, Niamey, Niger',
+    website: 'https://www.nizartv.com/',
+    logo: 'https://www.nizartv.com/images/nizar.png',
+    description: 'Entreprise pionnière dans le secteur du transport au Niger, partenaire officiel de la FENIFOOT.',
+  },
+  {
+    name: 'Rimbo Transport Voyageur',
+    phone: '+227 90 90 24 04',
+    email: 'rimbortv@gmail.com',
+    address: 'Boulevard Mali Bero, Niamey, Niger',
+    website: 'https://rimbortv.net/',
+    logo: 'https://rimbortv.net/front/style/images/rs/logo_facebook.png',
+    description: 'Le Roi de la Route - Plus de 20 ans d\'expérience dans le transport en Afrique de l\'Ouest.',
+  },
+  {
+    name: 'STM',
+    phone: '+227 20 73 23 23',
+    email: 'contact@stmvoyageurs.com',
+    address: 'Avenue du Manga, Niamey, Niger',
+    website: 'https://stmvoyageurs.com/',
+    logo: 'https://stmvoyageurs.com/assets/logos/LOGO_STM.png',
+    description: 'Société de Transport Moderne - Transport voyageurs au Niger et en Afrique de l\'Ouest.',
+  },
+  {
+    name: 'Sonef Transport Voyageur',
+    phone: '+227 20 74 00 00',
+    email: 'contact@sonef.net',
+    address: 'Niamey, Niger',
+    website: 'https://sonef.net/',
+    logo: 'https://sonef.net/wp-content/uploads/2024/11/Logo-SONEF_.png',
+    description: 'Transport de personnes et de marchandises en Afrique de l\'Ouest avec flotte moderne climatisée.',
+  },
+  {
+    name: 'Ema Transport Voyageur',
+    phone: '+227 92 92 85 15',
+    email: 'contact@ematransportvoyageur.com',
+    address: 'Wadata, Rue RF-15, Niamey, Niger',
+    website: 'https://ematransportvoyageur.com/',
+    logo: 'https://ematransportvoyageur.com/wp-content/uploads/2023/12/logo-ema-transport-transparent-blanc.png',
+    description: 'Compagnie de bus engagée pour la satisfaction de ses clients au Niger et au Bénin.',
+  },
+  {
+    name: 'Salim Transport Voyageur',
+    phone: '+227 80 08 16 00',
+    email: 'info@salimtv.com',
+    address: 'Boulevard Mali Bero, Niamey, Niger',
+    website: 'https://salimtv.com/',
+    logo: 'https://salimtv.com/static/img/LOGO.jpg',
+    description: 'Transport sûr, fiable et confortable avec flotte moderne depuis 2020.',
+  },
+  {
+    name: 'Azawad Transport Voyageur',
+    phone: '+227 96 96 00 00',
+    email: 'contact@azawad-transport.ne',
+    address: 'Boulevard Mali Bero, Niamey, Niger',
+    website: null,
+    logo: null,
+    description: 'Spécialiste de la destination Tahoua avec départs quotidiens.',
+  },
+  {
+    name: 'Africa Assalam',
+    phone: '+227 93 28 78 00',
+    email: 'contact@africa-assalam.ne',
+    address: 'Rue RF-16, Niamey, Niger',
+    website: null,
+    logo: null,
+    description: 'Desserte de la boucle du Niger, de Tillabéry à Gaya.',
+  },
+  {
+    name: 'Amana Transport VIP',
+    phone: '+227 80 15 75 75',
+    email: 'contact@amanatransportvip.com',
+    address: 'Niamey, Niger',
+    website: 'https://amanatransportvip.com/',
+    logo: 'https://amanatransportvip.com/assets/logo_amana_transparent.png',
+    description: 'L\'univers du confort - Service premium avec Starlink et sièges VIP.',
+  },
+];

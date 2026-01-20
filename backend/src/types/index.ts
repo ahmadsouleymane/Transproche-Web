@@ -45,6 +45,7 @@ export interface ICompany extends Document {
   phone: string;
   email: string;
   address: string;
+  website?: string;
   commission: number;
   status: CompanyStatus;
   createdAt: Date;

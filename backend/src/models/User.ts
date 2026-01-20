@@ -59,9 +59,7 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
   return comparePassword(candidatePassword, this.password);
 };
 
-// Index for faster queries
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
+// Index for faster queries (email and phone already indexed via unique: true)
 userSchema.index({ role: 1 });
 
 export const User = mongoose.model<IUser>('User', userSchema);

@@ -24,6 +24,7 @@ export interface Company {
   phone: string;
   email: string;
   address: string;
+  website?: string;
   commission: number;
   status: CompanyStatus;
   createdAt: string;
@@ -127,6 +128,7 @@ export interface AuthResponse {
 }
 
 export const NIGER_CITIES = [
+  // Principales villes du Niger
   'Niamey',
   'Zinder',
   'Maradi',
@@ -137,6 +139,44 @@ export const NIGER_CITIES = [
   'Tillabéri',
   'Arlit',
   "Birni N'Konni",
+  // Autres villes du Niger
+  'Abalak',
+  'Aderbissanat',
+  'Aguié',
+  'Ayerou',
+  'Badaguichiri',
+  'Bakin Birji',
+  'Doutchi',
+  'Galmi',
+  'Gaya',
+  'Gazaoua',
+  'Gouré',
+  'Guidan Roumdji',
+  'Guidiguir',
+  'Illela',
+  'Konni',
+  'Madaoua',
+  'Maïné Soroa',
+  'Malbaza',
+  'Mirriah',
+  'Ouallam',
+  'Tanout',
+  'Tchiro',
+  'Tera',
+  'Tessaoua',
+  'Tchadoua',
+  'Tsernaoua',
+  // Destinations internationales
+  'Abidjan',
+  'Accra',
+  'Bamako',
+  'Bobo-Dioulasso',
+  'Cotonou',
+  'Dakar',
+  'Gao',
+  'Lomé',
+  'Ouagadougou',
+  'Parakou',
 ] as const;
 
 export type NigerCity = (typeof NIGER_CITIES)[number];

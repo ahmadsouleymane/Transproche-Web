@@ -4,7 +4,6 @@ import { parcelController } from '../controllers/parcel.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { isAdmin, isAdminOrCompany } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
-import { NIGER_CITIES } from '../config/cities';
 
 const router = Router();
 
@@ -18,8 +17,8 @@ const createValidation = [
   body('receiver.address').trim().notEmpty().withMessage('L\'adresse du destinataire est requise'),
   body('companyId').notEmpty().withMessage('La compagnie est requise'),
   body('type').isIn(['petit', 'moyen', 'gros']).withMessage('Type de colis invalide'),
-  body('departure').isIn(NIGER_CITIES).withMessage('Ville de départ invalide'),
-  body('arrival').isIn(NIGER_CITIES).withMessage('Ville d\'arrivée invalide'),
+  body('departure').trim().notEmpty().withMessage('Ville de départ requise'),
+  body('arrival').trim().notEmpty().withMessage('Ville d\'arrivée requise'),
 ];
 
 // Status update validation
