@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: transproche-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - backend-uploads:/app/uploads
+    networks:
+      - transproche-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.transproche.com/api}
+        - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-TRANSPROCHE}
+    container_name: transproche-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - transproche-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: transproche-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - backend-uploads:/var/www/uploads:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - transproche-network
+
+  # Certbot for SSL certificates (optional, run manually)
+  certbot:
+    image: certbot/certbot
+    container_name: transproche-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    profiles:
+      - ssl
+
+networks:
+  transproche-network:
+    driver: bridge
+
+volumes:
+  backend-uploads:
+    driver: local

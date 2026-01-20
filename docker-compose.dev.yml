@@ -1,0 +1,50 @@
+version: '3.8'
+
+# Development docker-compose with hot reload
+services:
+  # Backend API with hot reload
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: transproche-backend-dev
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/uploads:/app/uploads
+    ports:
+      - "5000:5000"
+    networks:
+      - transproche-dev-network
+
+  # Frontend Next.js with hot reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: transproche-frontend-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      - NEXT_PUBLIC_APP_NAME=TRANSPROCHE
+    volumes:
+      - ./frontend/app:/app/app:ro
+      - ./frontend/components:/app/components:ro
+      - ./frontend/lib:/app/lib:ro
+      - ./frontend/context:/app/context:ro
+      - ./frontend/public:/app/public:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - transproche-dev-network
+
+networks:
+  transproche-dev-network:
+    driver: bridge

@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Next.js build output
+.next
+out
+
+# Environment files (will be passed as build args)
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Test files
+coverage
+.nyc_output
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__
+
+# Logs
+*.log
+
+# TypeScript cache
+*.tsbuildinfo
+
+# PWA generated files (will be regenerated on build)
+public/sw.js
+public/workbox-*.js
+public/sw.js.map
+public/workbox-*.js.map
