@@ -13,6 +13,9 @@ export type ParcelStatus = 'en_attente' | 'collecte' | 'en_transit' | 'livre' | 
 // Parcel type
 export type ParcelType = 'petit' | 'moyen' | 'gros';
 
+// Parcel mode
+export type ParcelMode = 'envoi' | 'recuperation';
+
 // Company status
 export type CompanyStatus = 'active' | 'inactive' | 'pending';
 
@@ -102,6 +105,7 @@ export interface IPersonInfo {
 export interface IParcel extends Document {
   _id: Types.ObjectId;
   trackingNumber: string;
+  parcelMode: ParcelMode;
   sender: IPersonInfo;
   receiver: IPersonInfo;
   user: Types.ObjectId;
@@ -113,6 +117,12 @@ export interface IParcel extends Document {
   status: ParcelStatus;
   departure: string;
   arrival: string;
+  // For 'recuperation' mode
+  receiptPhoto?: string;
+  idPhoto?: string;
+  pickupCompany?: string;
+  // For 'envoi' mode
+  pickupLocation?: string;
   createdAt: Date;
   updatedAt: Date;
 }

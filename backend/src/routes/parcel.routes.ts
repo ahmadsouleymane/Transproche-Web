@@ -4,11 +4,12 @@ import { parcelController } from '../controllers/parcel.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { isAdmin, isAdminOrCompany } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
+import { uploadParcelPhotos } from '../config/multer';
 
 const router = Router();
 
-// Create validation
-const createValidation = [
+// Create validation for envoi mode
+const createEnvoiValidation = [
   body('sender.name').trim().notEmpty().withMessage('Le nom de l\'expéditeur est requis'),
   body('sender.phone').trim().notEmpty().withMessage('Le téléphone de l\'expéditeur est requis'),
   body('sender.address').trim().notEmpty().withMessage('L\'adresse de l\'expéditeur est requise'),
@@ -32,7 +33,16 @@ router.get('/track/:trackingNumber', parcelController.track);
 
 // User routes
 router.get('/', authenticate, parcelController.getMyParcels);
-router.post('/', authenticate, validate(createValidation), parcelController.create);
+router.post('/', authenticate, validate(createEnvoiValidation), parcelController.create);
+router.post(
+  '/recuperation',
+  authenticate,
+  uploadParcelPhotos.fields([
+    { name: 'receiptPhoto', maxCount: 1 },
+    { name: 'idPhoto', maxCount: 1 },
+  ]),
+  parcelController.createRecuperation
+);
 
 // Company routes
 router.get('/company', authenticate, isAdminOrCompany, parcelController.getCompanyParcels);

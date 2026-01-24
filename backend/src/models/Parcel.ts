@@ -29,6 +29,12 @@ const parcelSchema = new Schema<IParcel>(
       type: String,
       unique: true,
     },
+    parcelMode: {
+      type: String,
+      enum: ['envoi', 'recuperation'],
+      required: [true, 'Le mode de colis est requis'],
+      default: 'envoi',
+    },
     sender: {
       type: personInfoSchema,
       required: [true, 'Les informations de l\'expéditeur sont requises'],
@@ -79,6 +85,22 @@ const parcelSchema = new Schema<IParcel>(
     arrival: {
       type: String,
       required: [true, 'La ville d\'arrivée est requise'],
+      trim: true,
+    },
+    // For 'recuperation' mode - pickup from a company
+    receiptPhoto: {
+      type: String,
+    },
+    idPhoto: {
+      type: String,
+    },
+    pickupCompany: {
+      type: String,
+      trim: true,
+    },
+    // For 'envoi' mode - where recipient will pick up
+    pickupLocation: {
+      type: String,
       trim: true,
     },
   },

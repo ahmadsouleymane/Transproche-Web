@@ -2,6 +2,7 @@ export type UserRole = 'client' | 'compagnie' | 'admin';
 export type TicketStatus = 'en_attente' | 'paye_livraison' | 'confirme' | 'annule' | 'expire';
 export type ParcelStatus = 'en_attente' | 'collecte' | 'en_transit' | 'livre' | 'annule';
 export type ParcelType = 'petit' | 'moyen' | 'gros';
+export type ParcelMode = 'envoi' | 'recuperation';
 export type CompanyStatus = 'active' | 'inactive' | 'pending';
 export type TripStatus = 'active' | 'inactive';
 
@@ -76,6 +77,7 @@ export interface PersonInfo {
 export interface Parcel {
   _id: string;
   trackingNumber: string;
+  parcelMode: ParcelMode;
   sender: PersonInfo;
   receiver: PersonInfo;
   user: User | string;
@@ -87,6 +89,12 @@ export interface Parcel {
   status: ParcelStatus;
   departure: string;
   arrival: string;
+  // For 'recuperation' mode
+  receiptPhoto?: string;
+  idPhoto?: string;
+  pickupCompany?: string;
+  // For 'envoi' mode
+  pickupLocation?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -201,6 +209,11 @@ export const PARCEL_TYPE_LABELS: Record<ParcelType, string> = {
   petit: 'Petit colis',
   moyen: 'Moyen colis',
   gros: 'Gros colis',
+};
+
+export const PARCEL_MODE_LABELS: Record<ParcelMode, string> = {
+  envoi: 'Envoi de colis',
+  recuperation: 'Récupération de colis',
 };
 
 export const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];

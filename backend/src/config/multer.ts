@@ -39,3 +39,11 @@ export const uploadAd = multer({
     fileSize: 10 * 1024 * 1024, // 10MB
   },
 });
+
+export const uploadParcelPhotos = multer({
+  storage: createStorage('parcels'),
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB per file
+  },
+});
