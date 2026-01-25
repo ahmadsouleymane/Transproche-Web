@@ -9,8 +9,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: { name: string; email: string; phone: string; password: string }) => Promise<void>;
+  login: (email: string, password: string, redirectUrl?: string) => Promise<void>;
+  register: (data: { name: string; email: string; phone: string; password: string }, redirectUrl?: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -42,12 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, redirectUrl?: string) => {
     const response = await authApi.login({ email, password });
     authApi.setTokens(response.accessToken, response.refreshToken);
     setUser(response.user);
 
-    // Redirect based on role
+    // If there's a redirect URL, use it (for ticket booking flow)
+    if (redirectUrl) {
+      router.push(redirectUrl);
+      return;
+    }
+
+    // Otherwise redirect based on role
     switch (response.user.role) {
       case 'admin':
         router.push('/admin/dashboard');
@@ -60,10 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (data: { name: string; email: string; phone: string; password: string }) => {
+  const register = async (data: { name: string; email: string; phone: string; password: string }, redirectUrl?: string) => {
     const response = await authApi.register(data);
     authApi.setTokens(response.accessToken, response.refreshToken);
     setUser(response.user);
+
+    // If there's a redirect URL, use it (for ticket booking flow)
+    if (redirectUrl) {
+      router.push(redirectUrl);
+      return;
+    }
+
     router.push('/client/dashboard');
   };
 

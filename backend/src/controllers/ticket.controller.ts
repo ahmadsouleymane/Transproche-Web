@@ -3,6 +3,8 @@ import { Ticket } from '../models/Ticket';
 import { Trip } from '../models/Trip';
 import { AppException } from '../middlewares/error.middleware';
 import { AuthRequest } from '../types';
+import { ticketService } from '../services/ticket.service';
+import { emailService } from '../services/email.service';
 
 export const ticketController = {
   // Get user's tickets
@@ -190,12 +192,22 @@ export const ticketController = {
 
       const populatedTicket = await Ticket.findById(ticket._id)
         .populate('company', 'name logo phone address')
-        .populate('trip', 'departure arrival departureTime');
+        .populate('trip', 'departure arrival departureTime')
+        .populate('user', 'name email phone');
+
+      // Send confirmation email (non-blocking)
+      emailService.sendBookingConfirmation(populatedTicket).catch(console.error);
+
+      // Generate QR code for response
+      const qrCode = await ticketService.generateQRCode(ticket.reservationNumber);
 
       res.status(201).json({
         success: true,
         message: 'Réservation créée avec succès',
-        data: populatedTicket,
+        data: {
+          ...populatedTicket?.toObject(),
+          qrCode,
+        },
       });
     } catch (error) {
       next(error);
@@ -229,10 +241,87 @@ export const ticketController = {
       ticket.status = status;
       await ticket.save();
 
+      // Send cancellation email if status is cancelled
+      if (status === 'annule') {
+        const populatedTicket = await Ticket.findById(ticket._id)
+          .populate('company', 'name')
+          .populate('trip', 'departure arrival departureTime')
+          .populate('user', 'email');
+        emailService.sendBookingCancellation(populatedTicket).catch(console.error);
+      }
+
       res.json({
         success: true,
         message: 'Statut mis à jour',
         data: ticket,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Get ticket with QR code
+  async getTicketWithQR(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const ticket = await ticketService.getTicketWithQR(req.params.reservationNumber);
+      res.json({
+        success: true,
+        data: ticket,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Download ticket PDF
+  async downloadPDF(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const pdfBuffer = await ticketService.generatePDF(req.params.reservationNumber);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=ticket-${req.params.reservationNumber}.pdf`
+      );
+      res.send(pdfBuffer);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Verify ticket (for scanning QR code)
+  async verifyTicket(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const ticket = await Ticket.findOne({ reservationNumber: req.params.reservationNumber })
+        .populate('company', 'name logo phone')
+        .populate('trip', 'departure arrival departureTime');
+
+      if (!ticket) {
+        throw new AppException('Ticket non trouvé', 404);
+      }
+
+      const travelDate = new Date(ticket.travelDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      travelDate.setHours(0, 0, 0, 0);
+
+      const isValid = ticket.status !== 'annule' &&
+                      ticket.status !== 'expire' &&
+                      travelDate >= today;
+
+      res.json({
+        success: true,
+        data: {
+          ticket,
+          isValid,
+          validationMessage: isValid
+            ? 'Ticket valide'
+            : ticket.status === 'annule'
+              ? 'Ce ticket a été annulé'
+              : ticket.status === 'expire'
+                ? 'Ce ticket a expiré'
+                : 'Ce ticket n\'est plus valide pour aujourd\'hui',
+        },
       });
     } catch (error) {
       next(error);

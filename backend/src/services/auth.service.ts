@@ -1,8 +1,11 @@
+import crypto from 'crypto';
 import { User } from '../models/User';
 import { Company } from '../models/Company';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.utils';
 import { IUser, UserRole } from '../types';
 import { AppException } from '../middlewares/error.middleware';
+import { emailService } from './email.service';
+import { hashPassword } from '../utils/password.utils';
 
 interface RegisterData {
   name: string;
@@ -129,5 +132,88 @@ export const authService = {
       company: user.company,
       createdAt: user.createdAt,
     };
+  },
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal if email exists
+      return;
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Save token to user
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    // Send email
+    await emailService.sendPasswordReset(email, resetToken);
+  },
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    }).select('+resetPasswordToken +resetPasswordExpires');
+
+    if (!user) {
+      throw new AppException('Token invalide ou expiré', 400);
+    }
+
+    // Update password
+    user.password = await hashPassword(newPassword);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+  },
+
+  async updateProfile(userId: string, data: { name?: string; phone?: string }): Promise<Partial<IUser>> {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new AppException('Utilisateur non trouvé', 404);
+    }
+
+    // Check if phone is already taken by another user
+    if (data.phone && data.phone !== user.phone) {
+      const existingPhone = await User.findOne({ phone: data.phone, _id: { $ne: userId } });
+      if (existingPhone) {
+        throw new AppException('Ce numéro de téléphone est déjà utilisé', 400);
+      }
+    }
+
+    if (data.name) user.name = data.name;
+    if (data.phone) user.phone = data.phone;
+
+    await user.save();
+
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      company: user.company,
+    };
+  },
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      throw new AppException('Utilisateur non trouvé', 404);
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw new AppException('Mot de passe actuel incorrect', 400);
+    }
+
+    user.password = await hashPassword(newPassword);
+    await user.save();
   },
 };

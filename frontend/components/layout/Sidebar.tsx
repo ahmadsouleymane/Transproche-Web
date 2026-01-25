@@ -16,6 +16,8 @@ import {
   DollarSign,
   Image as ImageIcon,
   LogOut,
+  User,
+  ClipboardList,
 } from 'lucide-react';
 
 interface SidebarLink {
@@ -28,12 +30,15 @@ const clientLinks: SidebarLink[] = [
   { href: '/client/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/client/bookings', label: 'Mes réservations', icon: Ticket },
   { href: '/client/parcels', label: 'Mes colis', icon: Package },
+  { href: '/client/profile', label: 'Mon profil', icon: User },
 ];
 
 const companyLinks: SidebarLink[] = [
   { href: '/company/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/company/reservations', label: 'Réservations', icon: Ticket },
   { href: '/company/trips', label: 'Trajets', icon: Route },
+  { href: '/company/parcels', label: 'Colis', icon: Package },
+  { href: '/company/manifest', label: 'Manifeste', icon: ClipboardList },
 ];
 
 const adminLinks: SidebarLink[] = [

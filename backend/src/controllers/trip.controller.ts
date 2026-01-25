@@ -41,7 +41,16 @@ export const tripController = {
 
   async search(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { departure, arrival, date } = req.query;
+      const {
+        departure,
+        arrival,
+        date,
+        minPrice,
+        maxPrice,
+        company,
+        sortBy,
+        sortOrder,
+      } = req.query;
 
       if (!departure || !arrival) {
         throw new AppException('Départ et arrivée sont requis', 400);
@@ -61,13 +70,56 @@ export const tripController = {
         query.daysOfWeek = dayOfWeek;
       }
 
+      // Price range filter
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) (query.price as Record<string, number>).$gte = parseInt(minPrice as string);
+        if (maxPrice) (query.price as Record<string, number>).$lte = parseInt(maxPrice as string);
+      }
+
+      // Company filter
+      if (company) {
+        query.company = company;
+      }
+
+      // Determine sorting
+      let sortOptions: Record<string, 1 | -1> = { departureTime: 1 };
+      if (sortBy === 'price') {
+        sortOptions = { price: sortOrder === 'desc' ? -1 : 1 };
+      } else if (sortBy === 'time') {
+        sortOptions = { departureTime: sortOrder === 'desc' ? -1 : 1 };
+      }
+
       const trips = await Trip.find(query)
         .populate('company', 'name logo phone')
-        .sort({ departureTime: 1 });
+        .sort(sortOptions);
+
+      // Get unique companies for filter dropdown
+      const allTripsForFilters = await Trip.find({
+        departure,
+        arrival,
+        status: 'active',
+      }).populate('company', 'name');
+
+      const companies = [...new Map(
+        allTripsForFilters
+          .filter(t => t.company)
+          .map(t => [(t.company as any)._id.toString(), { _id: (t.company as any)._id, name: (t.company as any).name }])
+      ).values()];
+
+      // Get price range for filters
+      const priceRange = {
+        min: Math.min(...allTripsForFilters.map(t => t.price)),
+        max: Math.max(...allTripsForFilters.map(t => t.price)),
+      };
 
       res.json({
         success: true,
         data: trips,
+        filters: {
+          companies,
+          priceRange,
+        },
       });
     } catch (error) {
       next(error);

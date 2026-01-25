@@ -7,7 +7,7 @@ import Badge from '@/components/ui/Badge';
 import Select from '@/components/ui/Select';
 import api from '@/lib/api';
 import { Ticket, TICKET_STATUS_LABELS, Trip, User } from '@/types';
-import { formatDate, formatPrice, formatTime, getStatusColor } from '@/lib/utils';
+import { formatDate, formatTime, getStatusColor } from '@/lib/utils';
 import { Loader2, Ticket as TicketIcon } from 'lucide-react';
 
 export default function ReservationsPage() {
@@ -71,8 +71,7 @@ export default function ReservationsPage() {
                       <p className="text-sm text-gray-500">{formatDate(ticket.travelDate)} - {formatTime(trip?.departureTime || '')}</p>
                     </div>
                     <div>
-                      <p className="text-sm">{ticket.seats} place(s)</p>
-                      <p className="font-bold text-primary-600">{formatPrice(ticket.totalPrice)}</p>
+                      <p className="font-bold text-primary-600">{ticket.seats} place(s)</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Select

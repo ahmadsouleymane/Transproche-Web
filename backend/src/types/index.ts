@@ -34,6 +34,8 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
   company?: Types.ObjectId;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;

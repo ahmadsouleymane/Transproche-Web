@@ -11,54 +11,146 @@ import { TRANSPORT_COMPANIES } from '../config/cities';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/transproche';
 
-// Tarifs principaux extraits du fichier Excel
-const MAIN_ROUTES = [
+// Tarifs principaux (FCFA) - basés sur recherches 2024
+const ROUTES_WITH_PRICES = {
   // Depuis Niamey
-  { departure: 'Niamey', arrival: 'Zinder', price: 10000 },
-  { departure: 'Niamey', arrival: 'Maradi', price: 8500 },
-  { departure: 'Niamey', arrival: 'Tahoua', price: 7000 },
-  { departure: 'Niamey', arrival: 'Agadez', price: 25000 },
-  { departure: 'Niamey', arrival: 'Dosso', price: 2500 },
-  { departure: 'Niamey', arrival: 'Diffa', price: 18500 },
-  { departure: 'Niamey', arrival: 'Arlit', price: 33500 },
-  { departure: 'Niamey', arrival: 'Konni', price: 5000 },
-  { departure: 'Niamey', arrival: 'Gaya', price: 5000 },
-  { departure: 'Niamey', arrival: 'Tillabéri', price: 1500 },
-  { departure: 'Niamey', arrival: 'Tera', price: 3500 },
-  { departure: 'Niamey', arrival: 'Ouallam', price: 3000 },
-  // Depuis Agadez
-  { departure: 'Agadez', arrival: 'Niamey', price: 25000 },
-  { departure: 'Agadez', arrival: 'Zinder', price: 13500 },
-  { departure: 'Agadez', arrival: 'Arlit', price: 11000 },
-  { departure: 'Agadez', arrival: 'Tahoua', price: 15500 },
-  { departure: 'Agadez', arrival: 'Maradi', price: 18500 },
-  { departure: 'Agadez', arrival: 'Diffa', price: 23000 },
-  // Depuis Zinder
-  { departure: 'Zinder', arrival: 'Niamey', price: 10000 },
-  { departure: 'Zinder', arrival: 'Maradi', price: 3000 },
-  { departure: 'Zinder', arrival: 'Agadez', price: 13500 },
-  { departure: 'Zinder', arrival: 'Diffa', price: 8500 },
-  { departure: 'Zinder', arrival: 'Tahoua', price: 7500 },
-  // Depuis Maradi
-  { departure: 'Maradi', arrival: 'Niamey', price: 8500 },
-  { departure: 'Maradi', arrival: 'Zinder', price: 3000 },
-  { departure: 'Maradi', arrival: 'Tahoua', price: 4500 },
-  { departure: 'Maradi', arrival: 'Agadez', price: 18500 },
-  // Depuis Tahoua
-  { departure: 'Tahoua', arrival: 'Niamey', price: 7000 },
-  { departure: 'Tahoua', arrival: 'Agadez', price: 15500 },
-  { departure: 'Tahoua', arrival: 'Arlit', price: 23500 },
-  { departure: 'Tahoua', arrival: 'Maradi', price: 4500 },
+  'Niamey-Dosso': 3000,
+  'Niamey-Tillabéri': 2000,
+  'Niamey-Konni': 5500,
+  'Niamey-Tahoua': 7000,
+  'Niamey-Maradi': 8500,
+  'Niamey-Zinder': 11000,
+  'Niamey-Agadez': 18000,
+  'Niamey-Arlit': 25000,
+  'Niamey-Diffa': 20000,
+  'Niamey-Gaya': 5000,
+  'Niamey-Ouallam': 3000,
+  'Niamey-Tera': 4000,
+  // Retours vers Niamey
+  'Dosso-Niamey': 3000,
+  'Tillabéri-Niamey': 2000,
+  'Konni-Niamey': 5500,
+  'Tahoua-Niamey': 7000,
+  'Maradi-Niamey': 8500,
+  'Zinder-Niamey': 11000,
+  'Agadez-Niamey': 18000,
+  'Arlit-Niamey': 25000,
+  'Diffa-Niamey': 20000,
+  // Liaisons inter-régionales
+  'Maradi-Zinder': 3500,
+  'Zinder-Maradi': 3500,
+  'Maradi-Tahoua': 5000,
+  'Tahoua-Maradi': 5000,
+  'Tahoua-Agadez': 12000,
+  'Agadez-Tahoua': 12000,
+  'Agadez-Arlit': 8000,
+  'Arlit-Agadez': 8000,
+  'Agadez-Zinder': 14000,
+  'Zinder-Agadez': 14000,
+  'Zinder-Diffa': 9000,
+  'Diffa-Zinder': 9000,
+  'Dosso-Gaya': 3000,
+  'Gaya-Dosso': 3000,
+  'Gaya-Niamey': 5000,
+  'Ouallam-Niamey': 3000,
+  'Tera-Niamey': 4000,
   // Destinations internationales
-  { departure: 'Niamey', arrival: 'Ouagadougou', price: 15000 },
-  { departure: 'Niamey', arrival: 'Cotonou', price: 20000 },
-  { departure: 'Niamey', arrival: 'Lomé', price: 25000 },
-  { departure: 'Niamey', arrival: 'Abidjan', price: 65000 },
-  { departure: 'Niamey', arrival: 'Accra', price: 38000 },
-  { departure: 'Niamey', arrival: 'Bamako', price: 55000 },
-  { departure: 'Agadez', arrival: 'Ouagadougou', price: 52000 },
-  { departure: 'Agadez', arrival: 'Abidjan', price: 80000 },
-];
+  'Niamey-Ouagadougou': 15000,
+  'Niamey-Cotonou': 22000,
+  'Niamey-Lomé': 28000,
+  'Niamey-Abidjan': 45000,
+  'Niamey-Accra': 35000,
+  'Niamey-Bamako': 40000,
+};
+
+// Horaires de départ par compagnie (basés sur recherches réelles)
+const COMPANY_SCHEDULES: Record<string, { times: string[]; routes: string[]; seats: number }> = {
+  'Rimbo Transport Voyageur': {
+    times: ['06:00', '08:00', '10:00', '14:00', '18:00'],
+    routes: [
+      'Niamey-Dosso', 'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Tahoua', 'Niamey-Agadez',
+      'Niamey-Konni', 'Niamey-Diffa', 'Niamey-Cotonou', 'Niamey-Ouagadougou', 'Niamey-Lomé',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Maradi-Zinder', 'Zinder-Maradi',
+      'Dosso-Niamey', 'Tahoua-Niamey', 'Agadez-Niamey',
+    ],
+    seats: 70,
+  },
+  'STM': {
+    times: ['07:00', '09:00', '15:00', '19:00'],
+    routes: [
+      'Niamey-Agadez', 'Niamey-Zinder', 'Niamey-Tahoua', 'Niamey-Maradi',
+      'Niamey-Ouagadougou', 'Niamey-Cotonou', 'Niamey-Lomé', 'Niamey-Abidjan',
+      'Agadez-Niamey', 'Zinder-Niamey', 'Tahoua-Niamey', 'Maradi-Niamey',
+      'Tahoua-Agadez', 'Agadez-Tahoua', 'Agadez-Arlit', 'Arlit-Agadez',
+    ],
+    seats: 55,
+  },
+  'Nizar Transport Voyageur': {
+    times: ['06:30', '08:30', '12:00', '16:00', '20:00'],
+    routes: [
+      'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Dosso', 'Niamey-Tahoua',
+      'Niamey-Konni', 'Niamey-Cotonou', 'Niamey-Ouagadougou',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Dosso-Niamey', 'Tahoua-Niamey',
+      'Maradi-Zinder', 'Zinder-Maradi',
+    ],
+    seats: 60,
+  },
+  'Sonef Transport Voyageur': {
+    times: ['05:30', '07:30', '11:00', '15:00', '18:30'],
+    routes: [
+      'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Tahoua', 'Niamey-Dosso',
+      'Niamey-Ouagadougou', 'Niamey-Cotonou',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Tahoua-Niamey', 'Dosso-Niamey',
+      'Maradi-Zinder', 'Zinder-Maradi', 'Maradi-Tahoua', 'Tahoua-Maradi',
+    ],
+    seats: 50,
+  },
+  'Ema Transport Voyageur': {
+    times: ['06:00', '09:00', '14:00', '17:00'],
+    routes: [
+      'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Dosso', 'Niamey-Cotonou',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Dosso-Niamey',
+      'Maradi-Zinder', 'Zinder-Maradi',
+    ],
+    seats: 50,
+  },
+  'Salim Transport Voyageur': {
+    times: ['07:00', '10:00', '14:00', '18:00'],
+    routes: [
+      'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Tahoua', 'Niamey-Dosso',
+      'Niamey-Konni', 'Niamey-Ouagadougou',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Tahoua-Niamey', 'Dosso-Niamey',
+    ],
+    seats: 55,
+  },
+  'Azawad Transport Voyageur': {
+    times: ['06:00', '10:00', '16:00'],
+    routes: [
+      'Niamey-Tahoua', 'Niamey-Agadez', 'Niamey-Arlit', 'Niamey-Konni',
+      'Tahoua-Niamey', 'Agadez-Niamey', 'Arlit-Niamey',
+      'Tahoua-Agadez', 'Agadez-Tahoua', 'Agadez-Arlit', 'Arlit-Agadez',
+    ],
+    seats: 45,
+  },
+  'Africa Assalam': {
+    times: ['06:30', '09:30', '14:30'],
+    routes: [
+      'Niamey-Tillabéri', 'Niamey-Ouallam', 'Niamey-Tera', 'Niamey-Dosso', 'Niamey-Gaya',
+      'Tillabéri-Niamey', 'Ouallam-Niamey', 'Tera-Niamey', 'Dosso-Niamey', 'Gaya-Niamey',
+      'Dosso-Gaya', 'Gaya-Dosso',
+    ],
+    seats: 40,
+  },
+  'Amana Transport VIP': {
+    times: ['07:00', '11:00', '16:00', '20:00'],
+    routes: [
+      'Niamey-Maradi', 'Niamey-Zinder', 'Niamey-Tahoua', 'Niamey-Agadez',
+      'Niamey-Ouagadougou', 'Niamey-Cotonou', 'Niamey-Lomé',
+      'Maradi-Niamey', 'Zinder-Niamey', 'Tahoua-Niamey', 'Agadez-Niamey',
+    ],
+    seats: 35, // VIP - fewer seats
+  },
+};
 
 async function seed() {
   try {
@@ -82,7 +174,7 @@ async function seed() {
     console.log('Created admin user:', admin.email);
 
     // Create companies with real information
-    const companies = [];
+    const companies: Map<string, any> = new Map();
     for (const companyData of TRANSPORT_COMPANIES) {
       const company = await Company.create({
         name: companyData.name,
@@ -95,47 +187,65 @@ async function seed() {
         status: 'active',
         commission: 10,
       });
-      companies.push(company);
+      companies.set(companyData.name, company);
       console.log('Created company:', company.name);
     }
 
     // Create company users
-    for (let i = 0; i < companies.length; i++) {
-      const company = companies[i];
+    let i = 0;
+    for (const [name, company] of companies) {
       await User.create({
-        name: `Gestionnaire ${company.name}`,
+        name: `Gestionnaire ${name}`,
         email: `gestionnaire${i + 1}@transproche.ne`,
         phone: `+227 91 00 00 0${i + 1}`,
         password: 'company123',
         role: 'compagnie',
         company: company._id,
       });
+      i++;
     }
     console.log('Created company users');
 
-    // Create trips for each company
-    const departureTimes = ['06:00', '07:00', '08:00', '09:00', '10:00', '14:00', '16:00'];
+    // Create trips for each company based on their schedules
     const daysOfWeek = [0, 1, 2, 3, 4, 5, 6]; // Every day
+    let tripCount = 0;
 
-    for (const company of companies) {
-      for (const route of MAIN_ROUTES) {
-        // Each company offers each route at different times
-        const randomTime = departureTimes[Math.floor(Math.random() * departureTimes.length)];
-
-        await Trip.create({
-          company: company._id,
-          departure: route.departure,
-          arrival: route.arrival,
-          departureTime: randomTime,
-          price: route.price,
-          availableSeats: 50,
-          totalSeats: 50,
-          daysOfWeek: daysOfWeek,
-          status: 'active',
-        });
+    for (const [companyName, schedule] of Object.entries(COMPANY_SCHEDULES)) {
+      const company = companies.get(companyName);
+      if (!company) {
+        console.log(`Company not found: ${companyName}`);
+        continue;
       }
+
+      for (const route of schedule.routes) {
+        const [departure, arrival] = route.split('-');
+        const price = ROUTES_WITH_PRICES[route as keyof typeof ROUTES_WITH_PRICES];
+
+        if (!price) {
+          console.log(`Price not found for route: ${route}`);
+          continue;
+        }
+
+        // Create a trip for each departure time
+        for (const time of schedule.times) {
+          await Trip.create({
+            company: company._id,
+            departure,
+            arrival,
+            departureTime: time,
+            price,
+            availableSeats: schedule.seats,
+            totalSeats: schedule.seats,
+            daysOfWeek,
+            status: 'active',
+          });
+          tripCount++;
+        }
+      }
+      console.log(`Created trips for ${companyName}`);
     }
-    console.log(`Created ${MAIN_ROUTES.length * companies.length} trips`);
+
+    console.log(`\nTotal trips created: ${tripCount}`);
 
     // Create a test client user
     await User.create({
@@ -152,6 +262,7 @@ async function seed() {
     console.log('- Admin: admin@transproche.ne / admin123');
     console.log('- Company: gestionnaire1@transproche.ne / company123');
     console.log('- Client: client@test.ne / client123');
+    console.log(`\nTotal: ${companies.size} companies, ${tripCount} trips`);
 
     process.exit(0);
   } catch (error) {

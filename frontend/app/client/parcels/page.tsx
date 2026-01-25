@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import api from '@/lib/api';
 import { Parcel, PARCEL_STATUS_LABELS, PARCEL_TYPE_LABELS, PARCEL_MODE_LABELS, Company } from '@/types';
-import { formatDate, formatPrice, getStatusColor } from '@/lib/utils';
+import { formatDate, getStatusColor } from '@/lib/utils';
 import { Loader2, Package, Send, Download, MapPin, Building2, FileImage } from 'lucide-react';
 import Image from 'next/image';
 
@@ -77,7 +77,6 @@ export default function ParcelsPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-500">{formatDate(parcel.createdAt)}</p>
-                      <p className="text-xl font-bold text-primary-600">{formatPrice(parcel.price)}</p>
                     </div>
                   </div>
 

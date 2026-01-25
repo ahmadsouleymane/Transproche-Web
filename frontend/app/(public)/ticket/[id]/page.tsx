@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -10,15 +10,16 @@ import Input from '@/components/ui/Input';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Trip, Company } from '@/types';
-import { formatPrice, formatTime } from '@/lib/utils';
+import { formatTime } from '@/lib/utils';
 import { Loader2, ArrowRight, Clock, Users, CheckCircle, AlertCircle, Minus, Plus, MapPin } from 'lucide-react';
 import Image from 'next/image';
 
 export default function TicketBookingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: tripId } = use(params);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading: authLoading } = useAuth();
 
   const [trip, setTrip] = useState<(Trip & { company: Company }) | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,8 +38,13 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
   useEffect(() => {
+    // Wait for auth to be ready
+    if (authLoading) return;
+
     if (!isAuthenticated) {
-      router.push('/login');
+      // Redirect to login with return URL
+      const currentUrl = `${pathname}?date=${travelDate}`;
+      router.push(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
       return;
     }
 
@@ -62,7 +68,7 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
         passengerPhone: user.phone,
       });
     }
-  }, [tripId, isAuthenticated, router, user]);
+  }, [tripId, isAuthenticated, authLoading, router, user, pathname, travelDate]);
 
   const handleSeatsChange = (delta: number) => {
     const newSeats = seats + delta;
@@ -96,12 +102,15 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
     }
   };
 
-  if (isLoading) {
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
         <main className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary-600 mx-auto" />
+            <p className="mt-2 text-gray-600">Chargement...</p>
+          </div>
         </main>
         <Footer />
       </div>
@@ -154,7 +163,6 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
                   <p><strong>Date :</strong> {new Date(travelDate).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                   <p><strong>Heure :</strong> {formatTime(trip.departureTime)}</p>
                   <p><strong>Places :</strong> {seats}</p>
-                  <p><strong>Total :</strong> {formatPrice(trip.price * seats)}</p>
                 </div>
                 <Button onClick={() => router.push('/client/bookings')}>Voir mes réservations</Button>
               </CardContent>
@@ -165,8 +173,6 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
       </div>
     );
   }
-
-  const totalPrice = trip.price * seats;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -297,28 +303,9 @@ export default function TicketBookingPage({ params }: { params: Promise<{ id: st
                   />
                 </div>
 
-                <hr />
-
-                {/* Price Summary */}
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between text-gray-600">
-                    <span>Prix par place</span>
-                    <span>{formatPrice(trip.price)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Nombre de places</span>
-                    <span>x {seats}</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Prix total</span>
-                    <span className="text-2xl font-bold text-primary-600">{formatPrice(totalPrice)}</span>
-                  </div>
-                </div>
-
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-blue-700 text-sm">
-                    <strong>Paiement à la livraison :</strong> Vous paierez {formatPrice(totalPrice)} lors de votre arrivée à l'agence le jour du voyage.
+                    <strong>Paiement à l'agence :</strong> Le paiement s'effectue directement à l'agence le jour du voyage.
                   </p>
                 </div>
 

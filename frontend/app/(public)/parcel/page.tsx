@@ -12,10 +12,8 @@ import Select from '@/components/ui/Select';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Company, NIGER_CITIES, PARCEL_TYPE_LABELS, ParcelMode } from '@/types';
-import { formatPrice } from '@/lib/utils';
 import { Package, Send, CheckCircle, AlertCircle, Upload, Download, Camera } from 'lucide-react';
 
-const PARCEL_PRICES = { petit: 2000, moyen: 4000, gros: 7000 };
 
 export default function ParcelPage() {
   const router = useRouter();
@@ -140,7 +138,7 @@ export default function ParcelPage() {
 
   const cityOptions = [{ value: '', label: 'Sélectionner' }, ...NIGER_CITIES.map((c) => ({ value: c, label: c }))];
   const companyOptions = [{ value: '', label: 'Sélectionner une compagnie' }, ...companies.map((c) => ({ value: c._id, label: c.name }))];
-  const typeOptions = Object.entries(PARCEL_TYPE_LABELS).map(([value, label]) => ({ value, label: `${label} - ${formatPrice(PARCEL_PRICES[value as keyof typeof PARCEL_PRICES])}` }));
+  const typeOptions = Object.entries(PARCEL_TYPE_LABELS).map(([value, label]) => ({ value, label }));
 
   if (success) {
     return (
@@ -364,9 +362,10 @@ export default function ParcelPage() {
 
                   <Input label="Description (optionnel)" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Contenu du colis..." />
 
-                  <div className="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
-                    <span>Prix total</span>
-                    <span className="text-2xl font-bold text-primary-600">{formatPrice(PARCEL_PRICES[formData.type])}</span>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-700 text-sm">
+                      <strong>Paiement :</strong> Le tarif vous sera communiqué et le paiement s'effectue à l'agence.
+                    </p>
                   </div>
 
                   <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>

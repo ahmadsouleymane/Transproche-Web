@@ -77,4 +77,77 @@ export const authController = {
       next(error);
     }
   },
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email } = req.body;
+      await authService.forgotPassword(email);
+
+      // Always return success to prevent email enumeration
+      res.json({
+        success: true,
+        message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { token, password } = req.body;
+      await authService.resetPassword(token, password);
+
+      res.json({
+        success: true,
+        message: 'Mot de passe réinitialisé avec succès',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'Non authentifié',
+        });
+        return;
+      }
+
+      const user = await authService.updateProfile(req.user._id.toString(), req.body);
+
+      res.json({
+        success: true,
+        message: 'Profil mis à jour',
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async changePassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        res.status(401).json({
+          success: false,
+          message: 'Non authentifié',
+        });
+        return;
+      }
+
+      const { currentPassword, newPassword } = req.body;
+      await authService.changePassword(req.user._id.toString(), currentPassword, newPassword);
+
+      res.json({
+        success: true,
+        message: 'Mot de passe modifié avec succès',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -47,12 +47,12 @@ const companies = [
 ];
 
 const popularRoutes = [
-  { from: 'Niamey', to: 'Maradi', price: '7 500', duration: '6h', departures: '5/jour' },
-  { from: 'Niamey', to: 'Zinder', price: '10 000', duration: '8h', departures: '4/jour' },
-  { from: 'Niamey', to: 'Tahoua', price: '6 000', duration: '5h', departures: '6/jour' },
-  { from: 'Niamey', to: 'Agadez', price: '15 000', duration: '11h', departures: '2/jour' },
-  { from: 'Maradi', to: 'Zinder', price: '3 500', duration: '2h', departures: '8/jour' },
-  { from: 'Niamey', to: 'Dosso', price: '3 000', duration: '2h', departures: '10/jour' },
+  { from: 'Niamey', to: 'Maradi', duration: '6h', departures: '5/jour' },
+  { from: 'Niamey', to: 'Zinder', duration: '8h', departures: '4/jour' },
+  { from: 'Niamey', to: 'Tahoua', duration: '5h', departures: '6/jour' },
+  { from: 'Niamey', to: 'Agadez', duration: '11h', departures: '2/jour' },
+  { from: 'Maradi', to: 'Zinder', duration: '2h', departures: '8/jour' },
+  { from: 'Niamey', to: 'Dosso', duration: '2h', departures: '10/jour' },
 ];
 
 const features = [
@@ -227,12 +227,9 @@ export default function HomePage() {
                       <span className="font-semibold text-gray-900">{route.to}</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-4 text-gray-500">
-                      <span>{route.duration}</span>
-                      <span>{route.departures}</span>
-                    </div>
-                    <span className="font-bold text-primary-600">{route.price} FCFA</span>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>{route.duration}</span>
+                    <span>{route.departures}</span>
                   </div>
                 </Link>
               ))}

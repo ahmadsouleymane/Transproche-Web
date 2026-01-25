@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Ticket, Package, Route, Users, Building2, Image } from 'lucide-react';
+import { LayoutDashboard, Ticket, Package, Route, Users, Building2, Image, User, ClipboardList } from 'lucide-react';
 
 interface MobileNavProps {
   role: 'client' | 'compagnie' | 'admin';
@@ -16,12 +16,14 @@ const MobileNav = ({ role }: MobileNavProps) => {
     { href: '/client/dashboard', label: 'Accueil', icon: LayoutDashboard },
     { href: '/client/bookings', label: 'Billets', icon: Ticket },
     { href: '/client/parcels', label: 'Colis', icon: Package },
+    { href: '/client/profile', label: 'Profil', icon: User },
   ];
 
   const companyLinks = [
     { href: '/company/dashboard', label: 'Accueil', icon: LayoutDashboard },
-    { href: '/company/reservations', label: 'Réservations', icon: Ticket },
-    { href: '/company/trips', label: 'Trajets', icon: Route },
+    { href: '/company/reservations', label: 'Billets', icon: Ticket },
+    { href: '/company/parcels', label: 'Colis', icon: Package },
+    { href: '/company/manifest', label: 'Manifeste', icon: ClipboardList },
   ];
 
   const adminLinks = [

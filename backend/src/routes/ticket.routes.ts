@@ -35,4 +35,9 @@ router.get('/all', authenticate, isAdmin, ticketController.getAllTickets);
 router.get('/reservation/:reservationNumber', ticketController.getByReservationNumber);
 router.patch('/:id/status', authenticate, isAdminOrCompany, validate(statusValidation), ticketController.updateStatus);
 
+// QR code and PDF routes (public for ticket verification)
+router.get('/:reservationNumber/qr', ticketController.getTicketWithQR);
+router.get('/:reservationNumber/pdf', ticketController.downloadPDF);
+router.get('/verify/:reservationNumber', ticketController.verifyTicket);
+
 export default router;
