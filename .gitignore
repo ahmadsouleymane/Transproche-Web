@@ -67,3 +67,4 @@ backend/uploads/*
 *.seed
 *.pid.lock
 .cache/
+.npmrc
